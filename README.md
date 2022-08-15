@@ -10,6 +10,8 @@ Deploy Confluence server with a Docker Compose using the command:
 
 `docker compose -f confluence-traefik-letsencrypt-docker-compose.yml -p confluence up -d`
 
+Detailed installation guide can be found on my [website](https://www.heyvaldemar.com/install-confluence-with-docker-compose/).
+
 # Author
 hey, I’m Vladimir Mikhalev, but my friends call me Valdemar.
 
