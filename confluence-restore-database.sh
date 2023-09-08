@@ -1,11 +1,27 @@
 #!/bin/bash
 
-CONFLUENCE_CONTAINER=$(docker ps -aqf "name=confluence_confluence")
-CONFLUENCE_BACKUPS_CONTAINER=$(docker ps -aqf "name=confluence_backups")
+# # confluence-restore-database.sh Description
+# This script facilitates the restoration of a database backup.
+# 1. **Identify Containers**: It first identifies the service and backups containers by name, finding the appropriate container IDs.
+# 2. **List Backups**: Displays all available database backups located at the specified backup path.
+# 3. **Select Backup**: Prompts the user to copy and paste the desired backup name from the list to restore the database.
+# 4. **Stop Service**: Temporarily stops the service to ensure data consistency during restoration.
+# 5. **Restore Database**: Executes a sequence of commands to drop the current database, create a new one, and restore it from the selected compressed backup file.
+# 6. **Start Service**: Restarts the service after the restoration is completed.
+# To make the `confluence-restore-database.shh` script executable, run the following command:
+# `chmod +x confluence-restore-database.sh`
+# Usage of this script ensures a controlled and guided process to restore the database from an existing backup.
+
+CONFLUENCE_CONTAINER=$(docker ps -aqf "name=confluence-confluence")
+CONFLUENCE_BACKUPS_CONTAINER=$(docker ps -aqf "name=confluence-backups")
+CONFLUENCE_DB_NAME="confluencedb"
+CONFLUENCE_DB_USER="confluencedbuser"
+POSTGRES_PASSWORD=$(docker exec $CONFLUENCE_BACKUPS_CONTAINER printenv PGPASSWORD)
+BACKUP_PATH="/srv/confluence-postgres/backups/"
 
 echo "--> All available database backups:"
 
-for entry in $(docker container exec -it $CONFLUENCE_BACKUPS_CONTAINER sh -c "ls /srv/confluence-postgres/backups/")
+for entry in $(docker container exec "$CONFLUENCE_BACKUPS_CONTAINER" sh -c "ls $BACKUP_PATH")
 do
   echo "$entry"
 done
@@ -19,13 +35,13 @@ read SELECTED_DATABASE_BACKUP
 echo "--> $SELECTED_DATABASE_BACKUP was selected"
 
 echo "--> Stopping service..."
-docker stop $CONFLUENCE_CONTAINER
+docker stop "$CONFLUENCE_CONTAINER"
 
 echo "--> Restoring database..."
-docker exec -it $CONFLUENCE_BACKUPS_CONTAINER sh -c 'PGPASSWORD="$(echo $POSTGRES_PASSWORD)" dropdb -h postgres -p 5432 confluencedb -U confluencedbuser \
-&& PGPASSWORD="$(echo $POSTGRES_PASSWORD)" createdb -h postgres -p 5432 confluencedb -U confluencedbuser \
-&& PGPASSWORD="$(echo $POSTGRES_PASSWORD)" gunzip -c /srv/confluence-postgres/backups/'$SELECTED_DATABASE_BACKUP' | PGPASSWORD=$(echo $POSTGRES_PASSWORD) psql -h postgres -p 5432 confluencedb -U confluencedbuser'
+docker exec "$CONFLUENCE_BACKUPS_CONTAINER" sh -c "dropdb -h postgres -p 5432 $CONFLUENCE_DB_NAME -U $CONFLUENCE_DB_USER \
+&& createdb -h postgres -p 5432 $CONFLUENCE_DB_NAME -U $CONFLUENCE_DB_USER \
+&& gunzip -c ${BACKUP_PATH}${SELECTED_DATABASE_BACKUP} | psql -h postgres -p 5432 $CONFLUENCE_DB_NAME -U $CONFLUENCE_DB_USER"
 echo "--> Database recovery completed..."
 
 echo "--> Starting service..."
-docker start $CONFLUENCE_CONTAINER
+docker start "$CONFLUENCE_CONTAINER"
