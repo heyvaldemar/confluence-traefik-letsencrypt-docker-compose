@@ -1,3 +1,15 @@
+# Image pins live HERE, as interpolation defaults, so `git pull` (or
+# re-downloading this file) delivers the exact version combination this
+# repository has tested — no .env editing required. Setting the matching
+# variable in .env overrides the default for anyone who wants to pin
+# differently; .env itself carries only secrets and deliberate overrides.
+# CI (Trivy scans, check-pin-freshness, the ephemeral test .env) reads
+# the pins from these lines — this block is the single source of truth.
+x-images:
+  traefik: &traefik-image ${TRAEFIK_IMAGE_TAG:-traefik:3.7@sha256:9c2a54d87f76f5c2f5f2682c68394af92fb12c0a2686798d6462a3f84bd78eaf}
+  postgres: &postgres-image ${CONFLUENCE_POSTGRES_IMAGE_TAG:-postgres:16@sha256:f1c3376c26f2609ab9f29f71f824103fe2fcd8ee0346485cb6122a4f93df6f94}
+  confluence: &confluence-image ${CONFLUENCE_IMAGE_TAG:-atlassian/confluence:10.2.15@sha256:810903b01662b85cd511f5e3c7dfc334b5c2850cf73b62503800aff5448983f6}
+
 networks:
   confluence-network:
     external: true
@@ -14,17 +26,17 @@ volumes:
 
 services:
   postgres:
-    image: ${CONFLUENCE_POSTGRES_IMAGE_TAG}
+    image: *postgres-image
     volumes:
       - confluence-postgres:/var/lib/postgresql/data
     environment:
-      POSTGRES_DB: ${CONFLUENCE_DB_NAME}
-      POSTGRES_USER: ${CONFLUENCE_DB_USER}
-      POSTGRES_PASSWORD: ${CONFLUENCE_DB_PASSWORD}
+      POSTGRES_DB: ${CONFLUENCE_DB_NAME:-confluencedb}
+      POSTGRES_USER: ${CONFLUENCE_DB_USER:-confluencedbuser}
+      POSTGRES_PASSWORD: ${CONFLUENCE_DB_PASSWORD:?set in .env - see .env.example for generation command}
     networks:
       - confluence-network
     healthcheck:
-      test: [ "CMD", "pg_isready", "-q", "-d", "${CONFLUENCE_DB_NAME}", "-U", "${CONFLUENCE_DB_USER}" ]
+      test: [ "CMD", "pg_isready", "-q", "-d", "${CONFLUENCE_DB_NAME:-confluencedb}", "-U", "${CONFLUENCE_DB_USER:-confluencedbuser}" ]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -32,21 +44,21 @@ services:
     restart: unless-stopped
 
   confluence:
-    image: ${CONFLUENCE_IMAGE_TAG}
+    image: *confluence-image
     volumes:
-      - confluence-data:${DATA_PATH}
+      - confluence-data:${DATA_PATH:-/var/atlassian/application-data/confluence}
     environment:
-      JVM_MINIMUM_MEMORY: ${CONFLUENCE_JVM_MINIMUM_MEMORY}
-      JVM_MAXIMUM_MEMORY: ${CONFLUENCE_JVM_MAXIMUM_MEMORY}
-      ATL_PROXY_NAME: ${CONFLUENCE_HOSTNAME}
+      JVM_MINIMUM_MEMORY: ${CONFLUENCE_JVM_MINIMUM_MEMORY:-8G}
+      JVM_MAXIMUM_MEMORY: ${CONFLUENCE_JVM_MAXIMUM_MEMORY:-12G}
+      ATL_PROXY_NAME: ${CONFLUENCE_HOSTNAME:?set in .env - see .env.example}
       ATL_TOMCAT_SECURE: 'true'
       ATL_TOMCAT_SCHEME: https
       ATL_PROXY_PORT: 443
       ATL_DB_TYPE: postgresql
       ATL_DB_DRIVER: org.postgresql.Driver
-      ATL_JDBC_USER: ${CONFLUENCE_DB_USER}
+      ATL_JDBC_USER: ${CONFLUENCE_DB_USER:-confluencedbuser}
       ATL_JDBC_PASSWORD: ${CONFLUENCE_DB_PASSWORD}
-      ATL_JDBC_URL: jdbc:postgresql://postgres:5432/${CONFLUENCE_DB_NAME}
+      ATL_JDBC_URL: jdbc:postgresql://postgres:5432/${CONFLUENCE_DB_NAME:-confluencedb}
     networks:
       - confluence-network
       - traefik-network
@@ -95,10 +107,10 @@ services:
         condition: service_healthy
 
   traefik:
-    image: ${TRAEFIK_IMAGE_TAG}
+    image: *traefik-image
     command:
       # Set the log level (DEBUG, INFO, WARN, ERROR)
-      - "--log.level=${TRAEFIK_LOG_LEVEL}"
+      - "--log.level=${TRAEFIK_LOG_LEVEL:-WARN}"
       # Enable the built-in API and web-based dashboard
       - "--api.dashboard=true"
       # Enable the /ping endpoint so we can health-check Traefik
@@ -125,7 +137,7 @@ services:
       # Use ACME (Let's Encrypt) to generate/renew certificates via TLS challenge
       - "--certificatesresolvers.letsencrypt.acme.tlschallenge=true"
       # The email address used by Let's Encrypt for renewal notices
-      - "--certificatesresolvers.letsencrypt.acme.email=${TRAEFIK_ACME_EMAIL}"
+      - "--certificatesresolvers.letsencrypt.acme.email=${TRAEFIK_ACME_EMAIL:?set in .env - see .env.example}"
       # The file where ACME certificates are stored inside the container
       - "--certificatesresolvers.letsencrypt.acme.storage=/etc/traefik/acme/acme.json"
       # Enable Prometheus metrics
@@ -155,14 +167,14 @@ services:
       # Enable Traefik for this container
       - "traefik.enable=true"
       # A router to expose the Traefik dashboard
-      - "traefik.http.routers.dashboard.rule=Host(`${TRAEFIK_HOSTNAME}`)"
+      - "traefik.http.routers.dashboard.rule=Host(`${TRAEFIK_HOSTNAME:?set in .env - see .env.example}`)"
       - "traefik.http.routers.dashboard.entrypoints=websecure"
       - "traefik.http.routers.dashboard.tls=true"
       - "traefik.http.routers.dashboard.tls.certresolver=letsencrypt"
       - "traefik.http.routers.dashboard.service=api@internal"
       # Basic Authentication for the Traefik dashboard
       - "traefik.http.routers.dashboard.middlewares=authtraefik"
-      - "traefik.http.middlewares.authtraefik.basicauth.users=${TRAEFIK_BASIC_AUTH}"
+      - "traefik.http.middlewares.authtraefik.basicauth.users=${TRAEFIK_BASIC_AUTH:?set in .env - see .env.example for htpasswd generation}"
       # Specify the internal server port to the dashboard service
       - "traefik.http.services.dashboard.loadbalancer.server.port=8080"
       # Pass the original Host header to the backend
@@ -170,33 +182,33 @@ services:
     restart: unless-stopped
 
   backups:
-    image: ${CONFLUENCE_POSTGRES_IMAGE_TAG}
+    image: *postgres-image
     command: >-
-      sh -c 'sleep $BACKUP_INIT_SLEEP &&
+      sh -c 'sleep $$BACKUP_INIT_SLEEP &&
       while true; do
-        pg_dump -h postgres -p 5432 -d $CONFLUENCE_DB_NAME -U $CONFLUENCE_DB_USER | gzip > $POSTGRES_BACKUPS_PATH/$POSTGRES_BACKUP_NAME-$(date "+%Y-%m-%d_%H-%M").gz &&
-        tar -zcpf $DATA_BACKUPS_PATH/$DATA_BACKUP_NAME-$(date "+%Y-%m-%d_%H-%M").tar.gz $DATA_PATH &&
-        find $POSTGRES_BACKUPS_PATH -type f -mtime +$POSTGRES_BACKUP_PRUNE_DAYS | xargs rm -f &&
-        find $DATA_BACKUPS_PATH -type f -mtime +$DATA_BACKUP_PRUNE_DAYS | xargs rm -f;
-        sleep $BACKUP_INTERVAL; done'
+        pg_dump -h postgres -p 5432 -d $$CONFLUENCE_DB_NAME -U $$CONFLUENCE_DB_USER | gzip > $$POSTGRES_BACKUPS_PATH/$$POSTGRES_BACKUP_NAME-$$(date "+%Y-%m-%d_%H-%M").gz &&
+        tar -zcpf $$DATA_BACKUPS_PATH/$$DATA_BACKUP_NAME-$$(date "+%Y-%m-%d_%H-%M").tar.gz $$DATA_PATH &&
+        find $$POSTGRES_BACKUPS_PATH -type f -mtime +$$POSTGRES_BACKUP_PRUNE_DAYS | xargs rm -f &&
+        find $$DATA_BACKUPS_PATH -type f -mtime +$$DATA_BACKUP_PRUNE_DAYS | xargs rm -f;
+        sleep $$BACKUP_INTERVAL; done'
     volumes:
       - confluence-postgres-backup:/var/lib/postgresql/data
-      - confluence-data:${DATA_PATH}
-      - confluence-data-backups:${DATA_BACKUPS_PATH}
-      - confluence-database-backups:${POSTGRES_BACKUPS_PATH}
+      - confluence-data:${DATA_PATH:-/var/atlassian/application-data/confluence}
+      - confluence-data-backups:${DATA_BACKUPS_PATH:-/srv/confluence-application-data/backups}
+      - confluence-database-backups:${POSTGRES_BACKUPS_PATH:-/srv/confluence-postgres/backups}
     environment:
-      CONFLUENCE_DB_NAME: ${CONFLUENCE_DB_NAME}
-      CONFLUENCE_DB_USER: ${CONFLUENCE_DB_USER}
+      CONFLUENCE_DB_NAME: ${CONFLUENCE_DB_NAME:-confluencedb}
+      CONFLUENCE_DB_USER: ${CONFLUENCE_DB_USER:-confluencedbuser}
       PGPASSWORD: ${CONFLUENCE_DB_PASSWORD}
-      BACKUP_INIT_SLEEP: ${BACKUP_INIT_SLEEP}
-      BACKUP_INTERVAL: ${BACKUP_INTERVAL}
-      POSTGRES_BACKUP_PRUNE_DAYS: ${POSTGRES_BACKUP_PRUNE_DAYS}
-      DATA_BACKUP_PRUNE_DAYS: ${DATA_BACKUP_PRUNE_DAYS}
-      POSTGRES_BACKUPS_PATH: ${POSTGRES_BACKUPS_PATH}
-      DATA_BACKUPS_PATH: ${DATA_BACKUPS_PATH}
-      DATA_PATH: ${DATA_PATH}
-      POSTGRES_BACKUP_NAME: ${POSTGRES_BACKUP_NAME}
-      DATA_BACKUP_NAME: ${DATA_BACKUP_NAME}
+      BACKUP_INIT_SLEEP: ${BACKUP_INIT_SLEEP:-30m}
+      BACKUP_INTERVAL: ${BACKUP_INTERVAL:-24h}
+      POSTGRES_BACKUP_PRUNE_DAYS: ${POSTGRES_BACKUP_PRUNE_DAYS:-7}
+      DATA_BACKUP_PRUNE_DAYS: ${DATA_BACKUP_PRUNE_DAYS:-7}
+      POSTGRES_BACKUPS_PATH: ${POSTGRES_BACKUPS_PATH:-/srv/confluence-postgres/backups}
+      DATA_BACKUPS_PATH: ${DATA_BACKUPS_PATH:-/srv/confluence-application-data/backups}
+      DATA_PATH: ${DATA_PATH:-/var/atlassian/application-data/confluence}
+      POSTGRES_BACKUP_NAME: ${POSTGRES_BACKUP_NAME:-confluence-postgres-backup}
+      DATA_BACKUP_NAME: ${DATA_BACKUP_NAME:-confluence-application-data-backup}
     networks:
       - confluence-network
     restart: unless-stopped

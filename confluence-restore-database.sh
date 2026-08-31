@@ -16,7 +16,6 @@ CONFLUENCE_CONTAINER=$(docker ps -aqf "name=confluence-confluence")
 CONFLUENCE_BACKUPS_CONTAINER=$(docker ps -aqf "name=confluence-backups")
 CONFLUENCE_DB_NAME="confluencedb"
 CONFLUENCE_DB_USER="confluencedbuser"
-POSTGRES_PASSWORD=$(docker exec $CONFLUENCE_BACKUPS_CONTAINER printenv PGPASSWORD)
 BACKUP_PATH="/srv/confluence-postgres/backups/"
 
 echo "--> All available database backups:"
@@ -30,7 +29,7 @@ echo "--> Copy and paste the backup name from the list above to restore database
 --> Example: confluence-postgres-backup-YYYY-MM-DD_hh-mm.gz"
 echo -n "--> "
 
-read SELECTED_DATABASE_BACKUP
+read -r SELECTED_DATABASE_BACKUP
 
 echo "--> $SELECTED_DATABASE_BACKUP was selected"
 
