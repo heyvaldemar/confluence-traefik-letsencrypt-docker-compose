@@ -77,7 +77,7 @@ _(no unreleased changes yet)_
   required-variable guard fires, a backup is produced, it is a readable
   archive with real dump content (and a readable data `tar.gz` where the
   stack has one), a database outage is reported as `FAILED`, **restore
-  genuinely replaces database state** (a marker row inserted after the
+ replaces database state** (a marker row inserted after the
   baseline backup is gone after restoring it), and pruning removes only
   old files.
 
@@ -110,7 +110,7 @@ v1.2.0.
 
 - **Confluence bumped 9.3.1 → 10.2.15.** ❗ Existing deployments should
   follow Atlassian's upgrade guidance (back up, upgrade, verify). There
-  is no downgrade. **Traefik bumped 3.2 → 3.7** (3.2's Docker client
+  is no downgrade. Traefik bumped 3.2 → 3.7 (3.2's Docker client
   cannot talk to Docker Engine 29).
 - **All three images pinned by `tag@sha256:digest`** (`postgres:16`
   digest-pinned; major unchanged so existing data dirs keep working).
