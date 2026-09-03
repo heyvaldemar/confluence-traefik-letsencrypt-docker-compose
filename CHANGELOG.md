@@ -27,6 +27,7 @@ _(no unreleased changes yet)_
 
 ### Changed
 
+- `atlassian/confluence` 10.2.15 to 10.2.16.
 - `atlassian/confluence:10.2.15` re-pinned to the digest upstream now publishes for that tag.
 
 ## [1.4.0] - 2026-09-02
