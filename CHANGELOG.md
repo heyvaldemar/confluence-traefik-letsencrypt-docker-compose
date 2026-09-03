@@ -51,7 +51,7 @@ _(no unreleased changes yet)_
 
 ### Added
 
-- **`tests/e2e-backup-restore.sh`** — seven end-to-end scenarios against
+- **`tests/e2e-backup-restore.sh`**: seven end-to-end scenarios against
   the live stack, run by CI on every push and by you locally: the
   required-variable guard fires, a backup is produced, it is a readable
   archive with real dump content (and a readable data `tar.gz` where the
@@ -88,13 +88,13 @@ v1.2.0.
 ### Security
 
 - **Confluence bumped 9.3.1 → 10.2.15.** ❗ Existing deployments should
-  follow Atlassian's upgrade guidance (back up, upgrade, verify) — there
+  follow Atlassian's upgrade guidance (back up, upgrade, verify). There
   is no downgrade. **Traefik bumped 3.2 → 3.7** (3.2's Docker client
   cannot talk to Docker Engine 29).
 - **All three images pinned by `tag@sha256:digest`** (`postgres:16`
   digest-pinned; major unchanged so existing data dirs keep working).
 - **Credentials untracked from git.** The tracked `.env` carried a
-  generated-looking database password published on GitHub — rotate it if
+  generated-looking database password published on GitHub. Rotate it if
   reused. `.env` is now gitignored; compose fails fast on unset values.
 
 ### Changed
