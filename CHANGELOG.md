@@ -25,6 +25,10 @@ _(no unreleased changes yet)_
   `docker compose up` fails with an invalid reference instead of
   deploying something unexpected.
 
+### Changed
+
+- `atlassian/confluence:10.2.15` re-pinned to the digest upstream now publishes for that tag.
+
 ## [1.4.0] - 2026-09-02
 
 ### Security
