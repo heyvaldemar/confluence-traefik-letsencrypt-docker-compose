@@ -7,7 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-_(no unreleased changes yet)_
+### Changed
+
+- **`atlassian/confluence:10.2.16` moved to `atlassian/confluence:10.2.17`** (automated: the freshness check reported the lag, the deploy job booted the stack on the new image before this landed).
 
 ## [1.7.0] - 2026-09-04
 
