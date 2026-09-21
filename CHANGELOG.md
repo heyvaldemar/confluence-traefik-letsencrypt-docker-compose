@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+_(no unreleased changes yet)_
+
+## [1.8.6] - 2026-09-21
+
 ### Security
 
 - **`traefik:3.7` was rebuilt upstream**; the pin moved from `sha256:1c32e7c36820…` to `sha256:24841fe2de73…`. Same version, same tag, a rebuilt base image — the usual shape of a security fix in a base layer.
@@ -216,7 +220,8 @@ v1.2.0.
 
 - Shellcheck findings in both restore scripts.
 
-[Unreleased]: https://github.com/heyvaldemar/confluence-traefik-letsencrypt-docker-compose/compare/v1.8.5...HEAD
+[Unreleased]: https://github.com/heyvaldemar/confluence-traefik-letsencrypt-docker-compose/compare/v1.8.6...HEAD
+[1.8.6]: https://github.com/heyvaldemar/confluence-traefik-letsencrypt-docker-compose/compare/v1.8.5...v1.8.6
 [1.8.5]: https://github.com/heyvaldemar/confluence-traefik-letsencrypt-docker-compose/compare/v1.8.4...v1.8.5
 [1.8.4]: https://github.com/heyvaldemar/confluence-traefik-letsencrypt-docker-compose/compare/v1.8.3...v1.8.4
 [1.8.3]: https://github.com/heyvaldemar/confluence-traefik-letsencrypt-docker-compose/compare/v1.8.2...v1.8.3
