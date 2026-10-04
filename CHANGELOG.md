@@ -7,7 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-_(no unreleased changes yet)_
+### Security
+
+- **`atlassian/confluence:10.2.18` was rebuilt upstream**; the pin moved from `sha256:b8f1ad804b8f…` to `sha256:f9230b44a82b…`. Same version, same tag, a rebuilt base image — the usual shape of a security fix in a base layer.
 
 ## [1.9.1] - 2026-09-27
 
