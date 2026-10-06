@@ -7,8 +7,8 @@
 # the pins from these lines — this block is the single source of truth.
 x-images:
   traefik: &traefik-image ${TRAEFIK_IMAGE_TAG:-traefik:${TRAEFIK_IMAGE_VERSION:-3.7@sha256:24841fe2de7304c149343d877d2923b4c8800a38ba015dea9174c23b20e344a0}}
-  postgres: &postgres-image ${CONFLUENCE_POSTGRES_IMAGE_TAG:-postgres:${CONFLUENCE_POSTGRES_IMAGE_VERSION:-16@sha256:1a6ab3f5345eb6dbe04a1349529caabdb0ab09293a09590fad07b2246bfa4b54}}
-  confluence: &confluence-image ${CONFLUENCE_IMAGE_TAG:-atlassian/confluence:${CONFLUENCE_IMAGE_VERSION:-10.2.18@sha256:f9230b44a82b779d7311a80ca49138df6edc160d44f4cf43035f9970875356be}}
+  postgres: &postgres-image ${CONFLUENCE_POSTGRES_IMAGE_TAG:-postgres:${CONFLUENCE_POSTGRES_IMAGE_VERSION:-16@sha256:65b16a8b326e0cfbdf33fa7e783f2a0cb352a61448616ccccfd616ef42aa0f65}}
+  confluence: &confluence-image ${CONFLUENCE_IMAGE_TAG:-atlassian/confluence:${CONFLUENCE_IMAGE_VERSION:-10.2.19@sha256:bb2d2a050e07fc20cd8dce79d1e585a4c295259c015f19d212a7a687a3bfdda9}}
 
 networks:
   confluence-network:
