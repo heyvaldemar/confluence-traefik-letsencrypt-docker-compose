@@ -8,7 +8,7 @@
 x-images:
   traefik: &traefik-image ${TRAEFIK_IMAGE_TAG:-traefik:${TRAEFIK_IMAGE_VERSION:-3.7@sha256:575fa15b135078fe5e50aa847987d96dbddd7b093c172429618404df73f3fa7c}}
   postgres: &postgres-image ${CONFLUENCE_POSTGRES_IMAGE_TAG:-postgres:${CONFLUENCE_POSTGRES_IMAGE_VERSION:-16@sha256:ca0bd484cb98bf4b24eb1010e73fb3fcbd6714d240fbc1a10eea5b7dbecb641d}}
-  confluence: &confluence-image ${CONFLUENCE_IMAGE_TAG:-atlassian/confluence:${CONFLUENCE_IMAGE_VERSION:-10.2.19@sha256:bb2d2a050e07fc20cd8dce79d1e585a4c295259c015f19d212a7a687a3bfdda9}}
+  confluence: &confluence-image ${CONFLUENCE_IMAGE_TAG:-atlassian/confluence:${CONFLUENCE_IMAGE_VERSION:-11.0.0@sha256:ae6b66d3973bd3578a2d27408bff73a214a36de7af13121eba9af3b4d543bcd8}}
 
 networks:
   confluence-network:
