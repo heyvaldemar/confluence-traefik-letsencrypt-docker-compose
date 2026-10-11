@@ -79,22 +79,32 @@ jobs:
           done
           exit "$status"
 
-      - name: Compare pinned Confluence version against the latest Docker Hub tag
+      - name: Compare pinned Confluence version against the latest tag in its LTS line
         # Runs even when the digest comparison above failed, so one run
         # reports every problem it can see instead of one per day.
         if: always()
         # Atlassian publishes releases as Docker Hub tags (no GitHub
-        # releases), so the check compares against the highest semver tag.
+        # releases), so the check compares against the highest semver tag
+        # IN THE PINNED LINE. This template tracks 10.2, Atlassian's Long Term
+        # Support release. 11.0 supports PostgreSQL 17 only where 10.2 runs on
+        # 16 and 17, takes Data Center licences only, drops the Bandana table
+        # on a successful upgrade, and is reachable only from the latest 10.2:
+        # a one-way move that is made deliberately in a major release of this
+        # template, never delivered by a patch. fleet-lifecycle reports the end
+        # of 10.2's support (2027-12-02) well before it arrives.
         run: |
           pin="$(grep -m1 -oE '\$\{CONFLUENCE_IMAGE_TAG:-.*' confluence-traefik-letsencrypt-docker-compose.yml | sed -E -e ':a' -e 's/\$\{[A-Z0-9_]+:-([^{}]*)\}/\1/' -e 'ta')"
           ref="${pin%%@*}"
           pinned_version="${ref##*:}"
           tok="$(curl -fsSL --retry 3 'https://auth.docker.io/token?service=registry.docker.io&scope=repository:atlassian/confluence:pull' | jq -r .token)"
-          latest="$(curl -fsSL --retry 3 -H "Authorization: Bearer $tok" 'https://registry-1.docker.io/v2/atlassian/confluence/tags/list?n=50000' | jq -r '.tags[]' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1)"
+          line="$(cut -d. -f1-2 <<<"${pinned_version#v}")"
+          tags="$(curl -fsSL --retry 3 -H "Authorization: Bearer $tok" 'https://registry-1.docker.io/v2/atlassian/confluence/tags/list?n=50000' | jq -r '.tags[]' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | sort -V)"
+          latest="$(grep -E "^${line//./\\.}\.[0-9]+$" <<<"$tags" | tail -1 || true)"
           if [ -z "$latest" ]; then
-            echo "::error::Could not determine the latest Confluence tag from Docker Hub"
+            echo "::error::Could not determine the latest Confluence ${line} tag from Docker Hub"
             exit 1
           fi
+          echo "Newest Confluence overall is $(tail -1 <<<"$tags"); this template tracks the ${line} line"
           # ORDER, NOT INEQUALITY. `!=` calls any difference "behind", including
           # being ahead, and GitHub's releases/latest is the most recently
           # PUBLISHED release rather than the highest version. A project that
@@ -112,7 +122,7 @@ jobs:
             echo "Confluence pin ${pinned_version} is ahead of the published ${latest}, which is what a maintenance release for an older branch looks like"
             exit 0
           fi
-          echo "Confluence pin ${pinned_version} matches the latest Docker Hub tag"
+          echo "Confluence pin ${pinned_version} matches the latest ${line} tag"
 
       - name: Compare pinned Traefik minor against the latest release
         # Runs even when the digest comparison above failed, so one run

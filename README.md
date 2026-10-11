@@ -103,7 +103,7 @@ docker compose -f confluence-traefik-letsencrypt-docker-compose.yml -p confluenc
 
 ## Features
 
-- **Confluence Data Center** 10.2 line with an external PostgreSQL 16, healthchecked and backupable.
+- **Confluence Data Center** 10.2 line with an external PostgreSQL 16, healthchecked and backupable. 10.2 is Atlassian's Long Term Support release, supported until 2027-12-02, and the pin follows its patches only. Confluence 11.0 is a one-way move held for a major release of this template: it supports PostgreSQL 17 only, takes Data Center licences only, drops the Bandana table on a successful upgrade, and can be reached only from the latest 10.2.
 - **Traefik v3** with automatic HTTP→HTTPS redirect and Let's Encrypt TLS-ALPN certificate issuance.
 - **Basic-auth protected Traefik dashboard** on a separate hostname.
 - **Tunable JVM heap** via `CONFLUENCE_JVM_MINIMUM_MEMORY` / `CONFLUENCE_JVM_MAXIMUM_MEMORY`.

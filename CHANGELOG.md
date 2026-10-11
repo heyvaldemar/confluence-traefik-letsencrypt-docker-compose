@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **The freshness check follows the 10.2 LTS line, and Confluence 11.0 waits for a major release.** It compared the pin
+  with the highest tag on Docker Hub, so 11.0.0 read as a lag and triage prepared `bump/11.0.0` for a person to decide.
+  Atlassian's supported platforms for 11.0 list PostgreSQL 17 only, where 10.2 supports 16 and 17 and this stack runs 16;
+  11.0 takes Data Center licences only, drops the Bandana table on a successful upgrade, and is reachable only from the
+  latest 10.2. That is a database upgrade and a one-way application upgrade together, which `git pull` must never deliver.
+  The check now compares against the newest tag in the pinned line and names the newest overall in its log; 10.2 is
+  supported until 2027-12-02, and fleet-lifecycle reports that date as it approaches.
+
 ### Security
 
 - **`atlassian/confluence:10.2.19` was rebuilt upstream**; the pin moved from `sha256:bb2d2a050e07…` to `sha256:e5de379c8a62…`. Same version, same tag, a rebuilt base image — the usual shape of a security fix in a base layer.
