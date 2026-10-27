@@ -84,7 +84,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: ${CONFLUENCE_MEMORY_LIMIT:-2g}
+          memory: ${CONFLUENCE_MEMORY_LIMIT:-18g}
           cpus: "${CONFLUENCE_CPU_LIMIT:-2.0}"
         reservations:
           memory: ${CONFLUENCE_MEMORY_RESERVATION:-256m}
@@ -92,6 +92,9 @@ services:
     volumes:
       - confluence-data:${DATA_PATH:-/var/atlassian/application-data/confluence}
     environment:
+      # CONFLUENCE_MEMORY_LIMIT above holds this heap, the 2 GB heap of Synchrony's own
+      # JVM in the same container, and a quarter more for what each JVM keeps
+      # outside its heap. Change them together.
       JVM_MINIMUM_MEMORY: ${CONFLUENCE_JVM_MINIMUM_MEMORY:-8G}
       JVM_MAXIMUM_MEMORY: ${CONFLUENCE_JVM_MAXIMUM_MEMORY:-12G}
       ATL_PROXY_NAME: ${CONFLUENCE_HOSTNAME:?set in .env - see .env.example}

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **The Confluence container's memory limit could not hold its own heap.** Since 1.3.0 (2026-09-02) `CONFLUENCE_MEMORY_LIMIT` defaulted to 2g while the heap defaults to 8G minimum and 12G maximum, and Synchrony runs a second JVM in the same container with a 2 GB heap of its own. The kernel kills a container that passes its limit, so a wiki in real use would be OOM-killed long before its heap reached the size it was given. CI did not see it: it runs a 1G to 3G heap with nobody using the wiki. The default is now 18g, the 12G heap plus Synchrony's 2 GB plus a quarter for what each JVM keeps outside its heap. If you lower the heap in `.env`, lower the limit with it; a limit you already set in `.env` is untouched.
+
 ### Security
 
 - **`traefik:3.7` was rebuilt upstream**; the pin moved from `sha256:c8a121e4bb13…` to `sha256:1336e85aaed2…`. Same version, same tag, a rebuilt base image — the usual shape of a security fix in a base layer.
