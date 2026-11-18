@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+_(no unreleased changes yet)_
+
+## [1.9.30] - 2026-11-18
+
 ### Security
 
 - **`atlassian/confluence:10.2.20` was rebuilt upstream**; the pin moved from `sha256:631dc0a70bd9…` to `sha256:79306891ac6b…`. Same version, same tag, a rebuilt base image — the usual shape of a security fix in a base layer.
@@ -471,7 +475,8 @@ v1.2.0.
 
 - Shellcheck findings in both restore scripts.
 
-[Unreleased]: https://github.com/heyvaldemar/confluence-traefik-letsencrypt-docker-compose/compare/v1.9.29...HEAD
+[Unreleased]: https://github.com/heyvaldemar/confluence-traefik-letsencrypt-docker-compose/compare/v1.9.30...HEAD
+[1.9.30]: https://github.com/heyvaldemar/confluence-traefik-letsencrypt-docker-compose/compare/v1.9.29...v1.9.30
 [1.9.29]: https://github.com/heyvaldemar/confluence-traefik-letsencrypt-docker-compose/compare/v1.9.28...v1.9.29
 [1.9.28]: https://github.com/heyvaldemar/confluence-traefik-letsencrypt-docker-compose/compare/v1.9.27...v1.9.28
 [1.9.27]: https://github.com/heyvaldemar/confluence-traefik-letsencrypt-docker-compose/compare/v1.9.26...v1.9.27
