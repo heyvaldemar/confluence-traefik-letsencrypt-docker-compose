@@ -7,7 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-_(no unreleased changes yet)_
+### Changed
+
+- **`atlassian/confluence:10.2.20` moved to `atlassian/confluence:10.2.22`.** The freshness check reported the lag; the deploy job booted the stack on the new image before this landed.
+
+### Security
+
+- **`atlassian/confluence:10.2.20` was rebuilt upstream**; the pin moved from `sha256:d529c87355fd…` to `sha256:9dca45fe5966…`. Same version, same tag, a rebuilt base image — the usual shape of a security fix in a base layer.
 
 ## [1.9.34] - 2026-11-25
 
