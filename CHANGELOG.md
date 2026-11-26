@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+_(no unreleased changes yet)_
+
+## [1.9.35] - 2026-11-26
+
 ### Changed
 
 - **`atlassian/confluence:10.2.20` moved to `atlassian/confluence:10.2.22`.** The freshness check reported the lag; the deploy job booted the stack on the new image before this landed.
@@ -505,7 +509,8 @@ v1.2.0.
 
 - Shellcheck findings in both restore scripts.
 
-[Unreleased]: https://github.com/heyvaldemar/confluence-traefik-letsencrypt-docker-compose/compare/v1.9.34...HEAD
+[Unreleased]: https://github.com/heyvaldemar/confluence-traefik-letsencrypt-docker-compose/compare/v1.9.35...HEAD
+[1.9.35]: https://github.com/heyvaldemar/confluence-traefik-letsencrypt-docker-compose/compare/v1.9.34...v1.9.35
 [1.9.34]: https://github.com/heyvaldemar/confluence-traefik-letsencrypt-docker-compose/compare/v1.9.33...v1.9.34
 [1.9.33]: https://github.com/heyvaldemar/confluence-traefik-letsencrypt-docker-compose/compare/v1.9.32...v1.9.33
 [1.9.32]: https://github.com/heyvaldemar/confluence-traefik-letsencrypt-docker-compose/compare/v1.9.31...v1.9.32
